@@ -4,9 +4,7 @@
   "description": "A typing test application with themes and a user-friendly interface.",
   "main": "index.js",
   "scripts": {
-    "start": "node api/server.js",
-    "build": "echo 'Build step can be added here'",
-    "test": "echo 'No tests specified'"
+    "start": "node api/server.js"
   },
   "keywords": [
     "typing",

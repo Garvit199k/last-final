@@ -1,58 +1,89 @@
 // This file contains the JavaScript code that implements the typing test functionality, including event listeners, timer management, and result calculations.
 
-const textToType = "The quick brown fox jumps over the lazy dog.";
-let timer;
-let timeLeft = 60; // 60 seconds for the typing test
-let isTestActive = false;
+document.addEventListener('DOMContentLoaded', () => {
+    const textToType = document.getElementById('text-to-type');
+    const userInput = document.getElementById('user-input');
+    const startButton = document.getElementById('start-button');
+    const submitButton = document.getElementById('submit-button');
+    const results = document.getElementById('results');
+    const timerDisplay = document.getElementById('timer');
+    const themeSelector = document.getElementById('theme-selector');
 
-const textElement = document.getElementById('text-to-type');
-const inputElement = document.getElementById('user-input');
-const timerElement = document.getElementById('timer');
-const resultElement = document.getElementById('result');
+    let timeLeft = 60;
+    let timer = null;
+    let testStarted = false;
 
-textElement.textContent = textToType;
+    // Theme handling
+    themeSelector.addEventListener('change', (e) => {
+        document.body.className = `theme-${e.target.value}`;
+    });
 
-inputElement.addEventListener('focus', startTest);
-inputElement.addEventListener('input', checkInput);
-
-function startTest() {
-    if (!isTestActive) {
-        isTestActive = true;
+    // Start test
+    startButton.addEventListener('click', () => {
+        userInput.value = '';
+        userInput.disabled = false;
+        userInput.focus();
+        startButton.disabled = true;
+        submitButton.disabled = false;
+        results.style.display = 'none';
+        testStarted = true;
         timeLeft = 60;
-        inputElement.value = '';
-        resultElement.textContent = '';
-        timerElement.textContent = timeLeft;
-        timer = setInterval(updateTimer, 1000);
-    }
-}
 
-function updateTimer() {
-    timeLeft--;
-    timerElement.textContent = timeLeft;
+        timer = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                endTest();
+            }
+        }, 1000);
+    });
 
-    if (timeLeft <= 0) {
-        endTest();
-    }
-}
+    // Submit test
+    submitButton.addEventListener('click', endTest);
 
-function checkInput() {
-    const userInput = inputElement.value;
-    if (userInput === textToType) {
-        endTest(true);
-    } else if (textToType.startsWith(userInput)) {
-        resultElement.textContent = 'Keep going!';
-    } else {
-        resultElement.textContent = 'Incorrect! Try again.';
-    }
-}
+    function endTest() {
+        clearInterval(timer);
+        userInput.disabled = true;
+        startButton.disabled = false;
+        submitButton.disabled = true;
+        testStarted = false;
 
-function endTest(success = false) {
-    clearInterval(timer);
-    isTestActive = false;
-    inputElement.blur();
-    if (success) {
-        resultElement.textContent = 'Congratulations! You typed it correctly!';
-    } else {
-        resultElement.textContent = 'Time is up! You did not complete the test.';
+        // Calculate results
+        const words = userInput.value.trim().split(/\s+/).length;
+        const wpm = Math.round((words / (60 - timeLeft)) * 60);
+        
+        const originalText = textToType.textContent.trim();
+        const userText = userInput.value.trim();
+        const accuracy = calculateAccuracy(originalText, userText);
+
+        // Display results
+        results.style.display = 'block';
+        document.getElementById('wpm').textContent = `Words per minute: ${wpm}`;
+        document.getElementById('accuracy').textContent = `Accuracy: ${accuracy}%`;
     }
-}
+
+    function calculateAccuracy(original, typed) {
+        const originalWords = original.split(/\s+/);
+        const typedWords = typed.split(/\s+/);
+        let correct = 0;
+
+        typedWords.forEach((word, i) => {
+            if (word === originalWords[i]) correct++;
+        });
+
+        return Math.round((correct / originalWords.length) * 100);
+    }
+
+    // Real-time validation
+    userInput.addEventListener('input', () => {
+        if (!testStarted) return;
+        
+        const currentText = userInput.value;
+        const originalText = textToType.textContent;
+        
+        if (currentText === originalText) {
+            endTest();
+        }
+    });
+});
