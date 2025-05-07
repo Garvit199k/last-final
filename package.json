@@ -1,0 +1,26 @@
+{
+  "name": "typing-test-project",
+  "version": "1.0.0",
+  "description": "A typing test application with themes and a user-friendly interface.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node api/results.js",
+    "build": "echo 'Build step can be added here'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "typing",
+    "test",
+    "application",
+    "serverless"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "14.x"
+  }
+}
